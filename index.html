@@ -307,6 +307,19 @@ tr.nuevo td{animation:flash 1.4s ease-out}
 .aj-txt .chip{font-size:.7rem}
 .aj-btns{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:560px){.hist th:nth-child(2),.hist td:nth-child(2){display:none}.hist td,.hist th{padding-inline:6px}}
+.bolsa[data-b="mantenimiento"]{--c:#aeb6f0}
+.seg.seg2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+/* menú estilo Instagram: solo íconos */
+.tabbar{align-items:center;padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button{padding:10px 2px;gap:0}
+.tabbar button span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tabbar svg{width:27px;height:27px;transition:transform .15s}
+.tabbar button.on svg{color:var(--fg);stroke-width:2.2}
+.tabbar button.on::after{content:"";width:4px;height:4px;border-radius:50%;background:var(--accent);margin-top:4px}
+.tabbar button:active svg{transform:scale(.88)}
+.tabbar .tab-add{width:auto;height:auto;margin:0;border-radius:0;background:none;box-shadow:none;color:var(--fg);padding:10px 2px;display:flex}
+.tabbar .tab-add svg{color:var(--fg)}
+.tabbar .tab-add:hover{filter:none;color:var(--accent)}
 .vacio{text-align:center;padding:26px 8px!important;color:var(--muted);font-family:var(--f-display);font-style:italic;font-size:1.05rem}
 @media (prefers-reduced-motion:reduce){#panelForm{transition:none!important}}
 </style>
@@ -416,10 +429,9 @@ tr.nuevo td{animation:flash 1.4s ease-out}
         </div>
         <div class="field" id="bolsaField" hidden>
           <span class="label" style="font-size:.7rem">¿Qué tipo de gasto es?</span>
-          <div class="seg seg4" role="radiogroup" aria-label="Tipo de gasto">
-            <input type="radio" name="bolsa" id="b-n" value="necesario" checked><label for="b-n" class="n">Necesario</label>
+          <div class="seg seg2" role="radiogroup" aria-label="Tipo de gasto">
+            <input type="radio" name="bolsa" id="b-n" value="mantenimiento" checked><label for="b-n" class="n">Mantenimiento</label>
             <input type="radio" name="bolsa" id="b-o" value="ocio"><label for="b-o" class="o">Ocio</label>
-            <input type="radio" name="bolsa" id="b-p" value="personal"><label for="b-p" class="p">Personal</label>
           </div>
         </div>
         <div class="row2">
@@ -439,7 +451,7 @@ tr.nuevo td{animation:flash 1.4s ease-out}
 <nav class="tabbar" aria-label="Menú principal">
   <button type="button" data-go="inicio" class="on" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-5h-6v5H5a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></button>
   <button type="button" data-go="presupuesto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l5.7 5.7"/></svg><span>Presupuesto</span></button>
-  <button type="button" class="tab-add" id="fab" aria-label="Agregar movimiento"><span aria-hidden="true">+</span></button>
+  <button type="button" class="tab-add" id="fab" aria-label="Agregar movimiento"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M12 8v8M8 12h8"/></svg><span>Agregar</span></button>
   <button type="button" data-go="movimientos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r=".8" fill="currentColor"/><circle cx="4" cy="12" r=".8" fill="currentColor"/><circle cx="4" cy="18" r=".8" fill="currentColor"/></svg><span>Movimientos</span></button>
   <button type="button" data-go="ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>Ajustes</span></button>
 </nav>
@@ -472,18 +484,18 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 const ym=today().slice(0,7);
 
 let items=[], modo='cargando', col=null, periodo=ym, borrar=null, filtro=null, ultimoCreado=null;
-const BOLSAS={ocio:{n:'Ocio',d:'Salidas, restaurantes, entretención'},personal:{n:'Personal',d:'Ropa, cuidado personal, gustos'},ahorro:{n:'Ahorro',d:'Lo que apartas para guardar'}};
-let cfg={ocio:30,personal:30,ahorro:40}, cfgRef=null, cfgT=null;
+const BOLSAS={mantenimiento:{n:'Mantenimiento',d:'Arriendo, cuentas, supermercado, transporte'},ocio:{n:'Ocio',d:'Salidas, restaurantes, ropa y gustos'},ahorro:{n:'Ahorro',d:'Lo que apartas para guardar'}};
+let cfg={mantenimiento:50,ocio:30,ahorro:20}, cfgRef=null, cfgT=null;
 let dentro=false, cred=null, uidAct='';
 const CRKEY='orbita.cred';
 const CKEY='orbita.cfg.v1';
 function inferir(i){
   if(i.tipo!=='gasto')return null;
-  if(i.bolsa)return i.bolsa;
+  if(i.bolsa==='ocio'||i.bolsa==='personal')return 'ocio';
+  if(i.bolsa==='mantenimiento'||i.bolsa==='necesario')return 'mantenimiento';
   const f=(i.fuente||'').toLowerCase();
-  if(/ocio|restaur|salida|entreten|viaje|streaming|cine|bar|delivery/.test(f))return 'ocio';
-  if(/ropa|personal|gimnasio|gym|regalo|peluquer|belleza|hobby/.test(f))return 'personal';
-  return 'necesario';
+  if(/ocio|restaur|salida|entreten|viaje|streaming|cine|bar|delivery|ropa|personal|gimnasio|gym|regalo|peluquer|belleza|hobby/.test(f))return 'ocio';
+  return 'mantenimiento';
 }
 function guardarCfg(){
   clearTimeout(cfgT);
@@ -521,6 +533,7 @@ function usarLocal(){
 const FUERA=!(window.claude&&window.claude.use);
 const PKEY='orbita.pin';
 function aplicarCfg(c){
+  if(!c||(c.mantenimiento===undefined&&c.personal!==undefined))return;
   Object.keys(BOLSAS).forEach(k=>{if(typeof c[k]==='number'){cfg[k]=c[k];const el=$('#pct-'+k);if(el&&document.activeElement!==el)el.value=c[k]}});
 }
 function estado(){
@@ -593,10 +606,10 @@ function render(){
   $('#legend').innerHTML=partes.map(p=>`<span><i class="dot" style="background:${p[2]}"></i>${p[0]}<b>${fmt(p[1])}</b></span>`).join('');
 
   /* presupuesto */
-  const uso={necesario:0,ocio:0,personal:0,ahorro:tot.ahorro};
+  const uso={mantenimiento:0,ocio:0,ahorro:tot.ahorro};
   vis.forEach(i=>{if(i.tipo==='gasto')uso[inferir(i)]+=(+i.monto||0)});
-  const baseP=Math.max(tot.ganancia-uso.necesario,0);
-  $('#presBase').innerHTML=`Ganancias <b>${fmt(tot.ganancia)}</b> − necesarios <b>${fmt(uso.necesario)}</b> = <b>${fmt(baseP)}</b> para repartir`;
+  const baseP=Math.max(tot.ganancia,0);
+  $('#presBase').innerHTML=`Tus ganancias del periodo, <b>${fmt(baseP)}</b>, repartidas en tres partes`;
   Object.keys(BOLSAS).forEach(k=>{
     const el=document.querySelector(`.bolsa[data-b="${k}"]`);
     const asig=baseP*cfg[k]/100, usado=uso[k], queda=asig-usado;
@@ -609,7 +622,7 @@ function render(){
     el.querySelector('[data-a]').textContent=fmt(asig);
     el.querySelector('[data-u]').textContent=fmt(usado);
   });
-  const suma=cfg.ocio+cfg.personal+cfg.ahorro, w=$('#presWarn');
+  const suma=cfg.mantenimiento+cfg.ocio+cfg.ahorro, w=$('#presWarn');
   w.hidden=suma===100;
   w.textContent=`Los porcentajes suman ${suma}%. Ajústalos para que sumen 100% y repartas todo lo disponible.`;
 
@@ -781,7 +794,7 @@ $('#borrarTodo').addEventListener('click',async()=>{
   if(modo==='db'&&col){
     for(const i of [...items]){try{await col.doc(i.id).delete()}catch(e){fallos++}}
   }else{items=[];guardarLocal()}
-  cfg.ocio=30;cfg.personal=30;cfg.ahorro=40;aplicarCfg(cfg);
+  cfg.mantenimiento=50;cfg.ocio=30;cfg.ahorro=20;aplicarCfg(cfg);
   Object.keys(BOLSAS).forEach(k=>{const el=$('#pct-'+k);if(el)el.value=cfg[k]});
   guardarCfg();render();
   btn.disabled=false;btn.classList.remove('armado');btn.textContent='Borrar todo';
