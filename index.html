@@ -472,6 +472,10 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
 .acc-form{width:100%;display:flex;flex-direction:column;gap:16px;align-items:stretch;text-align:left}
 .acc-form .acc-txt{text-align:center;align-self:center}
 .acc-form .acc-link{align-self:center}
+.borrar-zona{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.borrar-todo{color:var(--gas)!important;border-color:color-mix(in srgb,var(--gas) 45%,transparent)!important}
+.borrar-todo.armado{background:var(--gas)!important;color:var(--bg)!important}
+.borrar-todo:disabled{opacity:.6;cursor:wait}
 .acc-pin{letter-spacing:.6em;font-size:1.3rem;text-align:center;font-variant-numeric:tabular-nums}
 .acc-spin{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:acc-rot .8s linear infinite}
 @keyframes acc-rot{to{transform:rotate(360deg)}}
@@ -562,6 +566,7 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
         <button type="button" class="acc-lock" id="importar">Importar respaldo</button>
         <input type="file" id="archivo" accept="application/json,.json" hidden>
       </div>
+      <div class="borrar-zona"><button type="button" class="acc-lock borrar-todo" id="borrarTodo">Borrar todos mis datos</button><span class="label" id="borrarInfo"></span></div>
       <div class="tbl"><table>
         <thead><tr><th>Fecha</th><th>Tipo</th><th>Origen</th><th class="r">Monto</th><th><span class="hide-sm">&nbsp;</span></th></tr></thead>
         <tbody id="rows"></tbody>
@@ -897,6 +902,27 @@ function entrar(){
   $('#bloquear').hidden=false;
   $('#respaldo').hidden=!FUERA;
 }
+/* ---------- borrar todo ---------- */
+let borrarArmado=false,borrarT=null;
+$('#borrarTodo').addEventListener('click',async()=>{
+  const btn=$('#borrarTodo'),info=$('#borrarInfo');
+  if(!borrarArmado){
+    borrarArmado=true;btn.classList.add('armado');btn.textContent='Sí, borrar todo';
+    info.textContent='Se borran todos los movimientos y el presupuesto. No se puede deshacer.';
+    clearTimeout(borrarT);borrarT=setTimeout(()=>{borrarArmado=false;btn.classList.remove('armado');btn.textContent='Borrar todos mis datos';info.textContent=''},6000);
+    return;
+  }
+  clearTimeout(borrarT);borrarArmado=false;btn.disabled=true;btn.textContent='Borrando…';info.textContent='';
+  let fallos=0;
+  if(modo==='db'&&col){
+    for(const i of [...items]){try{await col.doc(i.id).delete()}catch(e){fallos++}}
+  }else{items=[];guardarLocal()}
+  cfg.ocio=30;cfg.personal=30;cfg.ahorro=40;aplicarCfg(cfg);
+  Object.keys(BOLSAS).forEach(k=>{const el=$('#pct-'+k);if(el)el.value=cfg[k]});
+  guardarCfg();render();
+  btn.disabled=false;btn.classList.remove('armado');btn.textContent='Borrar todos mis datos';
+  aviso(fallos?`No se pudieron borrar ${fallos} movimientos. Intenta de nuevo.`:'Listo, se borraron todos tus datos.',!!fallos);
+});
 /* ---------- respaldo (solo app instalada) ---------- */
 $('#exportar').addEventListener('click',()=>{
   const datos={app:'orbita',version:1,exportado:new Date().toISOString(),cfg,items};
