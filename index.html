@@ -468,7 +468,10 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
 .acc-btn:hover{filter:brightness(1.1)}
 .acc-link{background:none;border:0;color:var(--muted);font:inherit;font-size:.85rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .acc-link:hover{color:var(--fg)}
-.acc-msg{min-height:1.3em;font-size:.85rem;color:var(--gas);margin:-8px 0 0}
+.acc-msg{min-height:1.3em;font-size:.85rem;color:var(--gas);margin:-4px 0 0}
+.acc-form{width:100%;display:flex;flex-direction:column;gap:16px;align-items:stretch;text-align:left}
+.acc-form .acc-txt{text-align:center;align-self:center}
+.acc-form .acc-link{align-self:center}
 .acc-spin{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--accent);animation:acc-rot .8s linear infinite}
 @keyframes acc-rot{to{transform:rotate(360deg)}}
 .acc-lock{font:inherit;font-size:.78rem;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -478,9 +481,9 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
 
 <div id="acceso" role="dialog" aria-modal="true" aria-labelledby="accTitulo">
   <div class="acc-card">
-    <div class="acc-mark" id="accAvatar"><i></i></div>
+    <div class="acc-mark" aria-hidden="true"><i></i></div>
     <h2 class="acc-brand" id="accTitulo">Órbita</h2>
-    <p class="acc-hola" id="accHola">Finanzas personales</p>
+    <p class="acc-hola" id="accHola">Inicia sesión</p>
     <div id="accBody" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%"><div class="acc-spin" aria-label="Verificando tu cuenta"></div></div>
   </div>
 </div>
@@ -589,7 +592,8 @@ const EJEMPLO=[
 let items=[], modo='cargando', col=null, periodo=ym, borrar=null;
 const BOLSAS={ocio:{n:'Ocio',d:'Salidas, restaurantes, entretención'},personal:{n:'Personal',d:'Ropa, cuidado personal, gustos'},ahorro:{n:'Ahorro',d:'Lo que apartas para guardar'}};
 let cfg={ocio:30,personal:30,ahorro:40}, cfgRef=null, cfgT=null;
-let dentro=false, pinHash=null, uidAct='', nombre='', avatar='';
+let dentro=false, cred=null, uidAct='';
+const CRKEY='orbita.cred';
 const CKEY='orbita.cfg.v1';
 function inferir(i){
   if(i.tipo!=='gasto')return null;
@@ -602,7 +606,7 @@ function inferir(i){
 function guardarCfg(){
   clearTimeout(cfgT);
   cfgT=setTimeout(async()=>{
-    if(modo==='db'&&cfgRef){try{await cfgRef.set(Object.assign({},cfg,{pinHash}))}catch(e){}}
+    if(modo==='db'&&cfgRef){try{await cfgRef.set(Object.assign({},cfg,{cred}))}catch(e){}}
     else{try{localStorage.setItem(CKEY,JSON.stringify(cfg))}catch(e){}}
   },700);
 }
@@ -629,8 +633,8 @@ function usarLocal(){
   modo='local';items=leerLocal();
   try{const c=JSON.parse(localStorage.getItem(CKEY)||'null');if(c)aplicarCfg(c)}catch(e){}
   estado();render();
-  if(FUERA){try{pinHash=localStorage.getItem(PKEY)||null}catch(e){}}
-  if(!dentro)pantalla(FUERA?(pinHash?'pin':'bienvenida'):'sincuenta');
+  try{cred=JSON.parse(localStorage.getItem(CRKEY)||'null')}catch(e){cred=null}
+  if(!dentro)pantalla(cred?'login':'registro');
 }
 const FUERA=!(window.claude&&window.claude.use);
 const PKEY='orbita.pin';
@@ -650,17 +654,16 @@ async function iniciar(){
     const uid=user?await user.id():null;
     if(!db||!uid){usarLocal();return}
     uidAct=uid;
-    try{const me=await user.me();nombre=me.name||'';avatar=me.avatarUrl||''}catch(e){}
     col=db.collection('data/users/'+uid);
     cfgRef=col.doc('config');
     let primera=true;
     col.onSnapshot(s=>{
       modo='db';
       const c=s.docs.find(d=>d.id==='config');
-      if(c){aplicarCfg(c.data());pinHash=c.data().pinHash||null}
+      if(c){aplicarCfg(c.data());cred=c.data().cred||null}
       items=s.docs.filter(d=>d.id!=='config').map(d=>Object.assign({id:d.id},d.data()));
       estado();render();
-      if(primera){primera=false;if(!dentro)pantalla(pinHash?'pin':'bienvenida')}
+      if(primera){primera=false;if(!dentro)pantalla(cred?'login':'registro')}
     },()=>{col=null;usarLocal()});
   }catch(e){usarLocal()}
 }
@@ -805,81 +808,83 @@ $('#estiloSel').addEventListener('change',e=>{
 });
 
 /* ---------- acceso ---------- */
-async function hashPin(pin){
-  const txt='orbita:'+uidAct+':'+pin;
+function bytesHex(b){return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+async function derivar(usuario,clave,salt){
+  const txt=usuario.trim().toLowerCase()+':'+clave;
   try{
-    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));
-    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  }catch(e){let h=5381;for(const ch of txt)h=((h<<5)+h+ch.charCodeAt(0))|0;return 'h'+h}
+    const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(txt),'PBKDF2',false,['deriveBits']);
+    const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:150000,hash:'SHA-256'},k,256);
+    return bytesHex(bits);
+  }catch(e){let h=5381;for(const ch of salt+txt)h=((h<<5)+h+ch.charCodeAt(0))|0;return 'h'+h}
 }
-function cabecera(){
-  const nom=(nombre||'').split(' ')[0];
-  $('#accHola').textContent=nom?`Hola, ${nom}`:'Finanzas personales';
-  const a=$('#accAvatar');a.innerHTML='';
-  if(avatar){const img=new Image();img.alt='';img.src=avatar;a.appendChild(img)}else a.innerHTML='<i></i>';
+function nuevoSalt(){
+  try{const a=new Uint8Array(16);crypto.getRandomValues(a);return bytesHex(a)}catch(e){return String(Math.random()).slice(2)}
 }
-let pinBuf='', pinPaso=null, pinPrimero='';
+function campo(id,etq,tipo,auto){
+  return `<div class="field acc-field"><label for="${id}">${etq}</label><input id="${id}" type="${tipo}" autocomplete="${auto}" required></div>`;
+}
 function pantalla(tipo){
   dentro=false;$('#acceso').hidden=false;$('#app').setAttribute('aria-hidden','true');
-  cabecera();pinBuf='';const b=$('#accBody');
-  if(tipo==='sincuenta'){
-    b.innerHTML=`<p class="acc-txt">Inicia sesión en Claude para guardar tus finanzas de forma privada en tu cuenta.</p>
-      <button class="acc-btn" id="accEntrar">Continuar en este navegador</button>
-      <p class="acc-txt" style="font-size:.8rem">Sin cuenta, los datos quedan solo en este dispositivo.</p>`;
-    $('#accEntrar').onclick=entrar;
-  }else if(tipo==='bienvenida'){
-    b.innerHTML=`<p class="acc-txt">${modo==='local'?'Tus movimientos se guardan solo en este dispositivo.':'Tu cuenta está verificada. Tus movimientos son privados.'}</p>
-      <button class="acc-btn" id="accEntrar">Entrar</button>
-      <button class="acc-link" id="accCrear">Proteger con un PIN</button>`;
-    $('#accEntrar').onclick=entrar;$('#accCrear').onclick=()=>{pinPaso='nuevo';tecladoPin('Crea un PIN de 4 dígitos')};
-    $('#accEntrar').focus();
-  }else if(tipo==='pin'){
-    pinPaso='entrar';tecladoPin('Ingresa tu PIN');
+  const b=$('#accBody'),sub=$('#accHola');
+  if(tipo==='registro'){
+    sub.textContent='Crea tu acceso';
+    b.innerHTML=`<form class="acc-form" id="accForm" novalidate>
+      ${campo('accUser','Usuario','text','username')}
+      ${campo('accPass','Contraseña','password','new-password')}
+      ${campo('accPass2','Repite la contraseña','password','new-password')}
+      <p class="acc-msg" id="accMsg"></p>
+      <button class="acc-btn" type="submit">Crear acceso</button>
+      <p class="acc-txt" style="font-size:.8rem">Úsalo cada vez que abras Órbita. Mínimo 6 caracteres.</p>
+    </form>`;
+    $('#accForm').onsubmit=async e=>{
+      e.preventDefault();
+      const u=$('#accUser').value.trim(),p=$('#accPass').value,p2=$('#accPass2').value,msg=$('#accMsg');
+      if(u.length<3){msg.textContent='El usuario debe tener al menos 3 caracteres.';return}
+      if(p.length<6){msg.textContent='La contraseña debe tener al menos 6 caracteres.';return}
+      if(p!==p2){msg.textContent='Las contraseñas no coinciden.';return}
+      msg.textContent='';
+      const salt=nuevoSalt();
+      cred={usuario:u.toLowerCase(),salt,hash:await derivar(u,p,salt)};
+      if(await guardarCred())entrar();else msg.textContent='No se pudo guardar el acceso. Intenta de nuevo.';
+    };
+  }else if(tipo==='login'){
+    sub.textContent='Inicia sesión';
+    b.innerHTML=`<form class="acc-form" id="accForm" novalidate>
+      ${campo('accUser','Usuario','text','username')}
+      ${campo('accPass','Contraseña','password','current-password')}
+      <p class="acc-msg" id="accMsg"></p>
+      <button class="acc-btn" type="submit">Entrar</button>
+      <button class="acc-link" type="button" id="accOlvido">Olvidé mi contraseña</button>
+    </form>`;
+    $('#accForm').onsubmit=async e=>{
+      e.preventDefault();
+      const u=$('#accUser').value.trim(),p=$('#accPass').value,msg=$('#accMsg');
+      const ok=cred&&u.toLowerCase()===cred.usuario&&(await derivar(u,p,cred.salt))===cred.hash;
+      if(ok){$('#accPass').value='';entrar()}
+      else{msg.textContent='Usuario o contraseña incorrectos.';$('#accPass').value='';$('#accPass').focus()}
+    };
+    $('#accOlvido').onclick=()=>pantalla('olvido');
+  }else if(tipo==='olvido'){
+    sub.textContent='Restablecer acceso';
+    const local=modo!=='db';
+    b.innerHTML=`<p class="acc-txt">${local
+      ?'Para crear un acceso nuevo hay que borrar los datos guardados en este dispositivo. Si tienes un respaldo, después puedes importarlo.'
+      :'Puedes crear un acceso nuevo. Tus movimientos se mantienen porque están protegidos por tu cuenta de Claude.'}</p>
+      <button class="acc-btn" id="accReset">${local?'Borrar datos y crear acceso nuevo':'Crear acceso nuevo'}</button>
+      <button class="acc-link" id="accVolver">Volver</button>`;
+    $('#accReset').onclick=async()=>{
+      if(local){items=[];guardarLocal();try{localStorage.removeItem(CKEY)}catch(e){}render()}
+      cred=null;await guardarCred();pantalla('registro');
+    };
+    $('#accVolver').onclick=()=>pantalla('login');
   }
+  const f=b.querySelector('input');if(f)setTimeout(()=>f.focus(),50);
 }
-function tecladoPin(texto){
-  pinBuf='';const b=$('#accBody');
-  const teclas=[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('');
-  const izq=pinPaso==='entrar'?'<button class="ghost" data-k="olvido">Olvidé</button>':'<button class="ghost" data-k="cancel">Cancelar</button>';
-  b.innerHTML=`<p class="acc-txt" id="accPinTxt">${texto}</p>
-    <div class="acc-dots" id="accDots" aria-live="polite"><span></span><span></span><span></span><span></span></div>
-    <p class="acc-msg" id="accMsg"></p>
-    <div class="acc-pad">${teclas}${izq}<button data-k="0">0</button><button class="ghost" data-k="del" aria-label="Borrar">Borrar</button></div>`;
-  b.querySelector('.acc-pad').onclick=e=>{const k=e.target.closest('button');if(k)tecla(k.dataset.k)};
-}
-function puntos(err){
-  const d=$('#accDots');if(!d)return;
-  d.querySelectorAll('span').forEach((s,i)=>s.classList.toggle('on',i<pinBuf.length));
-  d.classList.remove('err');if(err){void d.offsetWidth;d.classList.add('err')}
-}
-async function tecla(k){
-  if(k==='del'){pinBuf=pinBuf.slice(0,-1);puntos();return}
-  if(k==='cancel'){pantalla('bienvenida');return}
-  if(k==='olvido'){
-    $('#accBody').innerHTML=`<p class="acc-txt">Puedes quitar el PIN y crear uno nuevo después. Tus datos no se borran.</p>
-      <button class="acc-btn" id="accQuitar">Quitar PIN y entrar</button><button class="acc-link" id="accVolver">Volver</button>`;
-    $('#accQuitar').onclick=async()=>{pinHash=null;await guardarPin();entrar()};
-    $('#accVolver').onclick=()=>pantalla('pin');return;
-  }
-  if(pinBuf.length>=4)return;
-  pinBuf+=k;puntos();
-  if(pinBuf.length<4)return;
-  const pin=pinBuf;
-  if(pinPaso==='entrar'){
-    if(await hashPin(pin)===pinHash){entrar()}
-    else{pinBuf='';puntos(true);$('#accMsg').textContent='PIN incorrecto. Intenta de nuevo.'}
-  }else if(pinPaso==='nuevo'){
-    pinPrimero=pin;pinPaso='confirmar';pinBuf='';puntos();$('#accPinTxt').textContent='Repite el PIN para confirmar';$('#accMsg').textContent='';
-  }else if(pinPaso==='confirmar'){
-    if(pin===pinPrimero){pinHash=await hashPin(pin);const ok=await guardarPin();if(ok)entrar();else{$('#accMsg').textContent='No se pudo guardar el PIN. Intenta de nuevo.';pinPaso='nuevo';pinBuf='';puntos()}}
-    else{pinPaso='nuevo';pinBuf='';puntos(true);$('#accPinTxt').textContent='Crea un PIN de 4 dígitos';$('#accMsg').textContent='Los PIN no coinciden. Empieza de nuevo.'}
-  }
-}
-async function guardarPin(){
+async function guardarCred(){
   if(!cfgRef){
-    try{pinHash?localStorage.setItem(PKEY,pinHash):localStorage.removeItem(PKEY);return true}catch(e){return false}
+    try{cred?localStorage.setItem(CRKEY,JSON.stringify(cred)):localStorage.removeItem(CRKEY);return true}catch(e){return false}
   }
-  try{await cfgRef.set(Object.assign({},cfg,{pinHash}));return true}catch(e){return false}
+  try{await cfgRef.set(Object.assign({},cfg,{cred}));return true}catch(e){return false}
 }
 function entrar(){
   dentro=true;$('#acceso').hidden=true;$('#app').removeAttribute('aria-hidden');
@@ -906,12 +911,7 @@ $('#archivo').addEventListener('change',async e=>{
     guardarLocal();render();aviso(`Importados ${n} movimientos.`);
   }catch(err){aviso('Ese archivo no es un respaldo de Órbita.',true)}
 });
-document.addEventListener('keydown',e=>{
-  if(dentro||!$('#accDots'))return;
-  if(/^[0-9]$/.test(e.key))tecla(e.key);
-  else if(e.key==='Backspace')tecla('del');
-});
-$('#bloquear').addEventListener('click',()=>pantalla(pinHash?'pin':'bienvenida'));
+$('#bloquear').addEventListener('click',()=>pantalla(cred?'login':'registro'));
 
 construirBolsas();sugerencias();render();iniciar();
 })();
