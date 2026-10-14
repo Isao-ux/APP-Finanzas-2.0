@@ -1,5 +1,5 @@
 // Órbita: guarda la app para que abra sin internet.
-const CACHE = 'orbita-v4';
+const CACHE = 'orbita-v5';
 const BASE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(BASE)).then(() => self.skipWaiting()));

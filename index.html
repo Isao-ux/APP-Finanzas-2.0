@@ -482,6 +482,72 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
 .acc-lock{font:inherit;font-size:.78rem;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
 .acc-lock:hover{color:var(--fg);border-color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.acc-spin,.acc-dots.err{animation:none}}
+
+/* ---- interacción ---- */
+.row2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+.seg{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.seg label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+input,select{min-width:0}
+.lower,.trio,.bolsas{min-width:0}
+.lower>*,.hist,.tbl{min-width:0}
+@media (max-width:899px){.lower{grid-template-columns:minmax(0,1fr)!important}}
+@media (max-width:759px){.trio,.bolsas{grid-template-columns:minmax(0,1fr)!important}}
+input[type=date]{-webkit-appearance:none;appearance:none;min-height:2.6em}
+.fab{display:none}
+.sheet-head{display:none;align-items:center;justify-content:center;position:relative;padding:4px 0 12px;touch-action:none}
+.grip{width:42px;height:4px;border-radius:4px;background:var(--line-hi)}
+.sheet-x{position:absolute;right:-4px;top:-4px;background:none;border:0;color:var(--muted);font-size:1.05rem;cursor:pointer;padding:8px 10px;line-height:1}
+.sheet-x:hover{color:var(--fg)}
+@media (max-width:899px){
+  .fab{display:grid;place-items:center;position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:62px;height:62px;border-radius:50%;border:0;
+    background:var(--accent);color:#fff;font-size:2rem;font-weight:300;line-height:1;box-shadow:0 10px 28px color-mix(in srgb,var(--accent) 50%,transparent);z-index:38;cursor:pointer;transition:transform .15s}
+  .fab:active{transform:scale(.9)}
+  #panelForm{position:fixed;left:0;right:0;bottom:0;z-index:41;max-height:92vh;overflow-y:auto;margin:0;border-radius:22px 22px 0 0!important;clip-path:none!important;
+    background:var(--surface)!important;border:1px solid var(--line-hi)!important;border-bottom:0!important;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px))!important;
+    transform:translateY(110%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s linear .32s}
+  #panelForm.open{transform:translateY(var(--drag,0px));visibility:visible;transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+  #panelForm.dragging{transition:none}
+  #panelForm::before{display:none}
+  .sheet-head{display:flex}
+  .wrap{padding-bottom:120px!important}
+}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.backdrop.alto{z-index:60}
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);opacity:0;pointer-events:none;background:var(--surface-2);color:var(--fg);
+  border:1px solid var(--line-hi);padding:10px 18px;border-radius:999px;font-size:.88rem;z-index:70;transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.err{border-color:var(--gas);color:var(--gas)}
+@media (min-width:900px){.toast{bottom:32px}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:-4px}
+.chips button{font:inherit;font-size:.78rem;padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;font-variant-numeric:tabular-nums;transition:transform .1s,border-color .15s,color .15s}
+.chips button:hover{color:var(--fg);border-color:var(--accent)}
+.chips button:active{transform:scale(.92)}
+.src li[data-f]{cursor:pointer;border-radius:6px;margin:-4px -6px;padding:4px 6px;transition:background .15s}
+.src li[data-f]:hover,.src li[data-f]:focus-visible{background:color-mix(in srgb,var(--c) 10%,transparent);outline:none}
+.src li.on{background:color-mix(in srgb,var(--c) 18%,transparent)}
+.filtro{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;padding:3px 4px 3px 12px;border-radius:999px;border:1px solid var(--accent);color:var(--fg)}
+.filtro button{background:none;border:0;color:var(--muted);cursor:pointer;font-size:.9rem;padding:2px 6px}
+.filtro button:hover{color:var(--fg)}
+.btn:active,.acc-btn:active{transform:scale(.98)}
+tr.nuevo td{animation:flash 1.4s ease-out}
+@keyframes flash{0%{background:color-mix(in srgb,var(--accent) 28%,transparent)}100%{background:transparent}}
+.inst-banner{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--accent);border-radius:14px;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.inst-banner .ico{flex:none;width:40px;height:40px;border-radius:10px;background:var(--bg);border:1px solid var(--line-hi);display:grid;place-items:center}
+.inst-banner .ico i{width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 5px var(--bg),0 0 0 6px var(--accent)}
+.inst-banner .txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.inst-banner b{font-weight:600;color:var(--fg)}
+.inst-banner .txt span{font-size:.82rem;color:var(--muted)}
+.inst-banner .acc-btn{width:auto;padding:9px 18px;flex:none}
+.inst-banner .sheet-x{position:static;flex:none}
+.ios-guia{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--surface);border:1px solid var(--line-hi);border-bottom:0;border-radius:22px 22px 0 0;
+  padding:20px 22px calc(24px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px;color:var(--fg)}
+.ios-guia h3{margin:0;font-size:1.15rem;font-weight:600}
+.ios-guia ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px;counter-reset:p}
+.ios-guia li{display:flex;align-items:center;gap:12px;font-size:.92rem;line-height:1.35}
+.ios-guia li::before{counter-increment:p;content:counter(p);flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:.8rem;font-weight:600}
+.ios-guia svg{flex:none;width:28px;height:28px;color:var(--accent)}
+.ios-guia .nota{font-size:.8rem;color:var(--muted);margin:0}
+@media (prefers-reduced-motion:reduce){#panelForm,.toast,.fab{transition:none!important}tr.nuevo td{animation:none}}
 </style>
 
 <div id="acceso" role="dialog" aria-modal="true" aria-labelledby="accTitulo">
@@ -490,6 +556,7 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
     <h2 class="acc-brand" id="accTitulo">Órbita</h2>
     <p class="acc-hola" id="accHola">Inicia sesión</p>
     <div id="accBody" style="display:flex;flex-direction:column;align-items:center;gap:20px;width:100%"><div class="acc-spin" aria-label="Verificando tu cuenta"></div></div>
+    <button type="button" class="acc-link" id="accInstalar" hidden>Instalar Órbita en este teléfono</button>
   </div>
 </div>
 
@@ -501,10 +568,17 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
       <span class="chip" id="estado"><i></i><span>Conectando…</span></span>
       <select id="mes" aria-label="Periodo"></select>
       <select id="estiloSel" aria-label="Estilo visual"><option value="elegante">Elegante</option><option value="minimalista">Minimalista</option><option value="futurista">Futurista</option></select>
+      <button type="button" class="acc-lock" id="instTop" hidden>Instalar app</button>
       <button type="button" class="acc-lock" id="bloquear" aria-label="Bloquear la app">Bloquear</button>
     </div>
   </div>
 
+  <div class="inst-banner" id="instBanner" hidden>
+    <div class="ico" aria-hidden="true"><i></i></div>
+    <div class="txt"><b>Instala Órbita</b><span>Tenla en tu pantalla de inicio y ábrela como app.</span></div>
+    <button type="button" class="acc-btn" id="instBtn">Instalar</button>
+    <button type="button" class="sheet-x" id="instCerrar" aria-label="Ahora no">✕</button>
+  </div>
   <div class="demo" id="demo" hidden><b>Ejemplo</b>Estás viendo datos de muestra. Registra tu primer movimiento y desaparecen.</div>
 
   <section class="panel hero" aria-label="Resumen">
@@ -532,7 +606,8 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
   <section class="trio" id="trio"></section>
 
   <section class="lower">
-    <div class="panel">
+    <div class="panel" id="panelForm">
+      <div class="sheet-head" id="sheetHead"><span class="grip"></span><button type="button" class="sheet-x" id="cerrarSheet" aria-label="Cerrar">✕</button></div>
       <form id="form" autocomplete="off">
         <div class="label">Nuevo movimiento</div>
         <div class="seg" role="radiogroup" aria-label="Tipo">
@@ -552,6 +627,9 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
           <div class="field"><label for="monto">Monto ($)</label><input id="monto" inputmode="numeric" placeholder="150.000" required></div>
           <div class="field"><label for="fecha">Fecha</label><input id="fecha" type="date" required></div>
         </div>
+        <div class="chips" id="chips" aria-label="Sumar al monto">
+          <button type="button" data-add="1000">+1.000</button><button type="button" data-add="5000">+5.000</button><button type="button" data-add="10000">+10.000</button><button type="button" data-add="50000">+50.000</button><button type="button" data-add="100000">+100.000</button><button type="button" data-add="0">Borrar</button>
+        </div>
         <div class="field"><label for="fuente" id="fuenteLbl">¿De dónde viene?</label><input id="fuente" list="sug" placeholder="Sueldo" required><datalist id="sug"></datalist></div>
         <div class="field"><label for="nota">Detalle (opcional)</label><input id="nota" placeholder="Pago quincena"></div>
         <button class="btn" type="submit">Registrar</button>
@@ -560,7 +638,7 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
     </div>
 
     <div class="panel hist">
-      <header><h2>Movimientos</h2><span class="label" id="count"></span></header>
+      <header><h2>Movimientos</h2><span class="filtro" id="filtroChip" hidden></span><span class="label" id="count"></span></header>
       <div id="respaldo" hidden style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
         <button type="button" class="acc-lock" id="exportar">Exportar respaldo</button>
         <button type="button" class="acc-lock" id="importar">Importar respaldo</button>
@@ -573,6 +651,21 @@ td.d{font-family:var(--f-data);color:var(--muted);white-space:nowrap}
       </table></div>
     </div>
   </section>
+</div>
+
+<button type="button" class="fab" id="fab" aria-label="Agregar movimiento">+</button>
+<div class="backdrop" id="backdrop" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="backdrop alto" id="iosFondo" hidden></div>
+<div class="ios-guia" id="iosGuia" role="dialog" aria-modal="true" aria-labelledby="iosTit" hidden>
+  <h3 id="iosTit">Instala Órbita en tu iPhone</h3>
+  <ol>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg><span>Toca el botón <b>Compartir</b> en la barra de Safari.</span></li>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg><span>Desliza y elige <b>Agregar a pantalla de inicio</b>.</span></li>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg><span>Toca <b>Agregar</b>. Órbita aparece con su ícono.</span></li>
+  </ol>
+  <p class="nota">Si abriste el link desde otra app o navegador, ábrelo primero en Safari.</p>
+  <button type="button" class="acc-btn" id="iosOk">Entendido</button>
 </div>
 
 <script>
@@ -595,7 +688,7 @@ const EJEMPLO=[
   ['ahorro',150000,'Cuenta de ahorro','','05'],['ahorro',100000,'Depósito a plazo','30 días','06']
 ].map((r,i)=>({id:'ej'+i,tipo:r[0],monto:r[1],fuente:r[2],nota:r[3],fecha:ym+'-'+r[4],ej:true}));
 
-let items=[], modo='cargando', col=null, periodo=ym, borrar=null;
+let items=[], modo='cargando', col=null, periodo=ym, borrar=null, filtro=null, ultimoCreado=null;
 const BOLSAS={ocio:{n:'Ocio',d:'Salidas, restaurantes, entretención'},personal:{n:'Personal',d:'Ropa, cuidado personal, gustos'},ahorro:{n:'Ahorro',d:'Lo que apartas para guardar'}};
 let cfg={ocio:30,personal:30,ahorro:40}, cfgRef=null, cfgT=null;
 let dentro=false, cred=null, uidAct='';
@@ -709,7 +802,7 @@ function render(){
   const tot={ganancia:0,gasto:0,ahorro:0},por={ganancia:{},gasto:{},ahorro:{}};
   vis.forEach(i=>{const n=+i.monto||0;tot[i.tipo]+=n;por[i.tipo][i.fuente]=(por[i.tipo][i.fuente]||0)+n});
   const disp=tot.ganancia-tot.gasto-tot.ahorro;
-  const d=$('#disp');d.textContent=fmt(disp);d.classList.toggle('neg',disp<0);
+  const d=$('#disp');animarNum(d,disp);d.classList.toggle('neg',disp<0);
   $('#dispSub').textContent=disp<0?'Gastaste y ahorraste más de lo que ganaste en este periodo':(tot.ganancia?`Te queda libre el ${Math.round(disp/tot.ganancia*100)}% de lo que ganaste`:'Ganancias − gastos − ahorros');
 
   const G=Math.max(tot.ganancia,tot.gasto+tot.ahorro)||1;
@@ -728,7 +821,7 @@ function render(){
     const asig=baseP*cfg[k]/100, usado=uso[k], queda=asig-usado;
     const over=queda<0;
     el.classList.toggle('over',over);
-    el.querySelector('[data-q]').textContent=fmt(Math.abs(queda));
+    animarNum(el.querySelector('[data-q]'),Math.abs(queda));
     el.querySelector('[data-c]').textContent=over?(k==='ahorro'?'por sobre tu meta de ahorro':'te pasaste del límite'):(k==='ahorro'?'por ahorrar todavía':'disponible para gastar');
     if(k==='ahorro'&&over)el.classList.remove('over');
     el.querySelector('[data-m]').style.width=(asig?Math.min(usado/asig,1)*100:(usado?100:0))+'%';
@@ -742,20 +835,22 @@ function render(){
   $('#trio').innerHTML=['ganancia','gasto','ahorro'].map(t=>{
     const lista=Object.entries(por[t]).sort((a,b)=>b[1]-a[1]);
     const max=lista[0]?lista[0][1]:1;
-    const li=lista.length?lista.map(([f,v])=>`<li><span class="name">${esc(f)}</span><span class="val">${fmt(v)}<span class="pct">${Math.round(v/(tot[t]||1)*100)}%</span></span><div class="bar"><span style="width:${v/max*100}%"></span></div></li>`).join(''):`<li class="empty">Sin ${TIPOS[t].nombre.toLowerCase()} en este periodo</li>`;
+    const li=lista.length?lista.map(([f,v])=>`<li data-t="${t}" data-f="${esc(f)}" tabindex="0" role="button" aria-pressed="${!!(filtro&&filtro.t===t&&filtro.f===f)}" class="${filtro&&filtro.t===t&&filtro.f===f?'on':''}" title="Ver solo estos movimientos"><span class="name">${esc(f)}</span><span class="val">${fmt(v)}<span class="pct">${Math.round(v/(tot[t]||1)*100)}%</span></span><div class="bar"><span style="width:${v/max*100}%"></span></div></li>`).join(''):`<li class="empty">Sin ${TIPOS[t].nombre.toLowerCase()} en este periodo</li>`;
     return `<article class="panel mod" data-t="${t}"><header><h2><i class="dot" style="background:${COL[t]};box-shadow:0 0 8px ${COL[t]}"></i>${TIPOS[t].nombre}</h2><span class="label">${lista.length} ${lista.length===1?'origen':'orígenes'}</span></header><div class="tot num">${fmt(tot[t])}</div><ul class="src">${li}</ul></article>`;
   }).join('');
 
-  const orden=[...vis].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  const fc=$('#filtroChip');
+  if(filtro){fc.hidden=false;fc.innerHTML=`${esc(filtro.f)}<button type="button" aria-label="Quitar filtro">✕</button>`}else{fc.hidden=true;fc.innerHTML=''}
+  const orden=vis.filter(i=>!filtro||(i.tipo===filtro.t&&i.fuente===filtro.f)).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')||(b.creado||0)-(a.creado||0));
   $('#count').textContent=orden.length+' registros';
   $('#rows').innerHTML=orden.length?orden.map(i=>{
     const [y,m,dd]=(i.fecha||'').split('-');
     const signo=i.tipo==='ganancia'?'+':'−';
-    return `<tr><td class="d">${dd}/${m}</td><td><span class="tag ${i.tipo}">${i.tipo}</span></td><td><div>${esc(i.fuente)}</div>${i.nota?`<div class="desc">${esc(i.nota)}</div>`:''}</td><td class="m" style="color:${COL[i.tipo]}">${signo}${fmt(i.monto)}</td><td>${i.ej?'':`<button class="del${borrar===i.id?' confirm':''}" data-id="${i.id}" aria-label="Borrar movimiento">${borrar===i.id?'¿Borrar?':'✕'}</button>`}</td></tr>`;
+    return `<tr${ultimoCreado&&i.creado===ultimoCreado?' class="nuevo"':''}><td class="d">${dd}/${m}</td><td><span class="tag ${i.tipo}">${i.tipo}</span></td><td><div>${esc(i.fuente)}</div>${i.nota?`<div class="desc">${esc(i.nota)}</div>`:''}</td><td class="m" style="color:${COL[i.tipo]}">${signo}${fmt(i.monto)}</td><td>${i.ej?'':`<button class="del${borrar===i.id?' confirm':''}" data-id="${i.id}" aria-label="Borrar movimiento">${borrar===i.id?'¿Borrar?':'✕'}</button>`}</td></tr>`;
   }).join(''):`<tr><td colspan="5" class="empty">No hay movimientos en este periodo.</td></tr>`;
 }
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function aviso(t,err){const m=$('#msg');m.textContent=t;m.className='msg'+(err?' err':'');clearTimeout(aviso.t);aviso.t=setTimeout(()=>{m.textContent=''},4000)}
+function aviso(t,err){const m=$('#msg');m.textContent=t;m.className='msg'+(err?' err':'');clearTimeout(aviso.t);aviso.t=setTimeout(()=>{m.textContent=''},4000);toast(t,err)}
 
 /* ---------- formulario ---------- */
 function tipoActual(){return document.querySelector('input[name=tipo]:checked').value}
@@ -787,7 +882,10 @@ $('#form').addEventListener('submit',async e=>{
   const ok=await agregar(m);
   if(ok){
     $('#monto').value='';$('#nota').value='';$('#fuente').value='';
-    periodo=m.fecha.slice(0,7);aviso(`Registrado: ${fmt(m.monto)} en ${TIPOS[m.tipo].nombre.toLowerCase()}`);sugerencias();$('#monto').focus();
+    ultimoCreado=m.creado;setTimeout(()=>{if(ultimoCreado===m.creado)ultimoCreado=null},1600);
+    periodo=m.fecha.slice(0,7);filtro=null;render();vibrar(15);
+    aviso(`Registrado: ${fmt(m.monto)} en ${TIPOS[m.tipo].nombre.toLowerCase()}`);sugerencias();
+    if(movil.matches)cerrarHoja();else $('#monto').focus();
   }
 });
 $('#mes').addEventListener('change',e=>{periodo=e.target.value;render()});
@@ -901,6 +999,7 @@ function entrar(){
   dentro=true;$('#acceso').hidden=true;$('#app').removeAttribute('aria-hidden');
   $('#bloquear').hidden=false;
   $('#respaldo').hidden=!FUERA;
+  mostrarInstalar();
 }
 /* ---------- borrar todo ---------- */
 let borrarArmado=false,borrarT=null;
@@ -944,6 +1043,93 @@ $('#archivo').addEventListener('change',async e=>{
   }catch(err){aviso('Ese archivo no es un respaldo de Órbita.',true)}
 });
 $('#bloquear').addEventListener('click',()=>pantalla(cred?'login':'registro'));
+
+/* ---------- interacción ---------- */
+const movil=window.matchMedia('(max-width: 899px)');
+const sinMov=window.matchMedia('(prefers-reduced-motion: reduce)');
+function vibrar(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function toast(t,err){
+  const el=$('#toast');el.textContent=t;el.classList.toggle('err',!!err);el.classList.add('on');
+  clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),2600);
+}
+function animarNum(el,valor,fn){
+  fn=fn||fmt;
+  const desde=typeof el._v==='number'?el._v:valor;el._v=valor;
+  cancelAnimationFrame(el._raf);
+  if(sinMov.matches||desde===valor){el.textContent=fn(valor);return}
+  const t0=performance.now(),dur=650;
+  const paso=t=>{const k=Math.min((t-t0)/dur,1),e=1-Math.pow(1-k,3);el.textContent=fn(desde+(valor-desde)*e);if(k<1)el._raf=requestAnimationFrame(paso)};
+  el._raf=requestAnimationFrame(paso);
+}
+/* hoja para agregar (celular) */
+const hoja=$('#panelForm');
+function abrirHoja(){
+  hoja.style.removeProperty('--drag');hoja.classList.add('open');$('#backdrop').hidden=false;
+  document.body.style.overflow='hidden';vibrar(8);
+  setTimeout(()=>{if(!$('#monto').value)$('#monto').focus()},340);
+}
+function cerrarHoja(){
+  hoja.classList.remove('open','dragging');hoja.style.removeProperty('--drag');
+  $('#backdrop').hidden=true;document.body.style.overflow='';
+}
+$('#fab').addEventListener('click',abrirHoja);
+$('#backdrop').addEventListener('click',cerrarHoja);
+$('#cerrarSheet').addEventListener('click',cerrarHoja);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#iosGuia').hidden)cerrarGuia();else if(hoja.classList.contains('open'))cerrarHoja()}});
+movil.addEventListener&&movil.addEventListener('change',()=>{if(!movil.matches)cerrarHoja()});
+(function(){
+  let y0=null,dy=0;const h=$('#sheetHead');
+  h.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;dy=0;hoja.classList.add('dragging')},{passive:true});
+  h.addEventListener('touchmove',e=>{if(y0===null)return;dy=Math.max(0,e.touches[0].clientY-y0);hoja.style.setProperty('--drag',dy+'px')},{passive:true});
+  h.addEventListener('touchend',()=>{hoja.classList.remove('dragging');if(dy>90)cerrarHoja();else hoja.style.removeProperty('--drag');y0=null});
+})();
+/* montos rápidos */
+$('#chips').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const add=+b.dataset.add;const act=Number($('#monto').value.replace(/\D/g,''))||0;
+  const n=add?act+add:0;$('#monto').value=n?n.toLocaleString('es-CL'):'';vibrar(6);
+});
+/* filtrar historial tocando un origen */
+function alternarFiltro(li){
+  const t=li.dataset.t,f=li.dataset.f;
+  filtro=(filtro&&filtro.t===t&&filtro.f===f)?null:{t,f};
+  vibrar(6);render();
+  if(filtro&&movil.matches)document.querySelector('.hist').scrollIntoView({behavior:sinMov.matches?'auto':'smooth',block:'start'});
+}
+$('#trio').addEventListener('click',e=>{const li=e.target.closest('li[data-f]');if(li)alternarFiltro(li)});
+$('#trio').addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const li=e.target.closest('li[data-f]');if(li){e.preventDefault();alternarFiltro(li)}});
+$('#filtroChip').addEventListener('click',e=>{if(e.target.closest('button')){filtro=null;render()}});
+
+/* ---------- instalar la app ---------- */
+let promptInst=null;
+const enApp=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+const esIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const IKEY='orbita.instNo';
+function puedeInstalar(){return FUERA&&!enApp()&&(!!promptInst||esIOS)}
+function mostrarInstalar(){
+  const ok=puedeInstalar();
+  let oculto=false;try{oculto=localStorage.getItem(IKEY)==='1'}catch(e){}
+  $('#instTop').hidden=!ok;$('#accInstalar').hidden=!ok;
+  $('#instBanner').hidden=!ok||oculto;
+}
+async function instalar(){
+  if(promptInst){
+    const p=promptInst;promptInst=null;
+    try{p.prompt();const r=await p.userChoice;if(r&&r.outcome==='accepted')toast('Instalando Órbita…')}catch(e){}
+    mostrarInstalar();return;
+  }
+  if(esIOS){abrirGuia();return}
+  toast('Abre el menú del navegador y elige "Instalar app".');
+}
+function abrirGuia(){$('#iosGuia').hidden=false;$('#iosFondo').hidden=false;$('#iosOk').focus()}
+function cerrarGuia(){$('#iosGuia').hidden=true;$('#iosFondo').hidden=true}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptInst=e;mostrarInstalar()});
+window.addEventListener('appinstalled',()=>{promptInst=null;mostrarInstalar();toast('Órbita quedó instalada en tu teléfono')});
+['instTop','instBtn','accInstalar'].forEach(id=>$('#'+id).addEventListener('click',instalar));
+$('#instCerrar').addEventListener('click',()=>{try{localStorage.setItem(IKEY,'1')}catch(e){}$('#instBanner').hidden=true});
+$('#iosOk').addEventListener('click',cerrarGuia);
+$('#iosFondo').addEventListener('click',cerrarGuia);
+mostrarInstalar();
 
 construirBolsas();sugerencias();render();iniciar();
 })();

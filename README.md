@@ -8,8 +8,9 @@ App web instalable para registrar ganancias, gastos y ahorros, ver de dónde vie
 3. En un par de minutos queda en `https://isao-ux.github.io/APP-Finanzas-2.0/`.
 
 ## Instalarla
-- **Android (Chrome):** abre el link → menú ⋮ → *Instalar app*.
-- **iPhone (Safari):** abre el link → botón Compartir → *Agregar a pantalla de inicio*.
+Al abrir el link aparece el aviso **Instala Órbita** con un botón **Instalar**.
+- **Android (Chrome):** toca **Instalar** y confirma. (También: menú ⋮ → *Instalar app*.)
+- **iPhone (Safari):** toca **Instalar** y sigue la guía: Compartir → *Agregar a pantalla de inicio* → *Agregar*.
 - **Computador (Chrome/Edge):** ícono de instalar en la barra de direcciones.
 
 ## Tus datos
