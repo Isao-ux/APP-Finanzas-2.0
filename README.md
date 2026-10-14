@@ -15,4 +15,4 @@ App web instalable para registrar ganancias, gastos y ahorros, ver de dónde vie
 ## Tus datos
 Los movimientos se guardan solo en el dispositivo donde los registras; nada se sube a GitHub.
 Usa **Exportar respaldo** para guardar una copia y **Importar respaldo** para pasarla a otro dispositivo.
-El usuario y la contraseña protegen la app en ese dispositivo. Si olvidas la contraseña, puedes crear un acceso nuevo, pero se borran los datos del dispositivo (recupéralos importando un respaldo).
+El usuario y el PIN de 4 dígitos protegen la app en ese dispositivo. Si olvidas el PIN, puedes crear un acceso nuevo, pero se borran los datos del dispositivo (recupéralos importando un respaldo).
